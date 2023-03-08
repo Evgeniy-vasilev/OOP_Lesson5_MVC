@@ -11,6 +11,13 @@ public class RepositoryFile implements Repository {
         this.fileOperation = fileOperation;
     }
 
+    public void saveUsers(List<User> users) {
+        List<String> lines = new ArrayList<>();
+        for (User item: users) {
+            lines.add(mapper.map(item));
+        }
+        fileOperation.saveAllLines(lines);
+    }
     @Override
     public List<User> getAllUsers() {
         List<String> lines = fileOperation.readAllLines();
@@ -36,11 +43,20 @@ public class RepositoryFile implements Repository {
         String id = String.format("%d", newId);
         user.setId(id);
         users.add(user);
-        List<String> lines = new ArrayList<>();
-        for (User item: users) {
-            lines.add(mapper.map(item));
-        }
-        fileOperation.saveAllLines(lines);
+        saveUsers(users);
         return id;
+    }
+
+    @Override
+    public void deleteUser(User user) {
+        List<String> lines = new ArrayList<>();
+        List<User> users = getAllUsers();
+        for (User item: users) {
+            if(!user.getId().equals(item.getId()))
+                lines.add(mapper.map(item));
+        }
+
+        fileOperation.saveAllLines(lines);
+        System.out.println("Контакт удален!");
     }
 }
